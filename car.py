@@ -5,6 +5,7 @@ from panda3d.bullet import ZUp
 from panda3d.core import Vec3
 from panda3d.core import Point3
 from panda3d.core import TransformState
+from AI import AI
 
 
 class Car(object):
@@ -88,6 +89,9 @@ class Car(object):
         self.steeringClamp = 45.0       # degree
         self.steeringIncrement = 120.0  # degree per second
 
+        # setup AI
+        self.setupAI()
+
     @property
     def node(self):
         return self.np
@@ -111,7 +115,7 @@ class Car(object):
         wheel.setSuspensionStiffness(40.0)
         wheel.setWheelsDampingRelaxation(2.3)
         wheel.setWheelsDampingCompression(4.4)
-        wheel.setFrictionSlip(100.0);
+        wheel.setFrictionSlip(100.0)
         wheel.setRollInfluence(0.1)
 
     def forward(self):
@@ -149,21 +153,24 @@ class Car(object):
     def setKey(self, key, value):
         self.keyMap[key] = value
 
+    def setupAI(self):
+        self.AI = AI(self.node, self.world)
+
     def update(self, task):
         # Apply steering to front wheels
-        self.vehicle.setSteeringValue(self.steering, 0);
-        self.vehicle.setSteeringValue(self.steering, 1);
+        self.vehicle.setSteeringValue(self.steering, 0)
+        self.vehicle.setSteeringValue(self.steering, 1)
 
         # Apply engine and brake to rear wheels
-        self.vehicle.applyEngineForce(self.engineForce, 2); #rear
-        self.vehicle.applyEngineForce(self.engineForce, 3); #rear
+        self.vehicle.applyEngineForce(self.engineForce, 2)  # rear
+        self.vehicle.applyEngineForce(self.engineForce, 3)  # rear
         # self.vehicle.applyEngineForce(self.engineForce, 0);
         # self.vehicle.applyEngineForce(self.engineForce, 1);
-        self.vehicle.setBrake(self.brakeForce, 2);
-        self.vehicle.setBrake(self.brakeForce, 3);
+        self.vehicle.setBrake(self.brakeForce, 2)
+        self.vehicle.setBrake(self.brakeForce, 3)
 
         self.dt = globalClock.getDt()
-        if( self.dt > .20):  # previne altos framerates
+        if self.dt > .20:  # prevent high framerates
             return task.cont
         if not self.keyMap["w"] and not self.keyMap["s"]:
             self.neutral()

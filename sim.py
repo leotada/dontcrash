@@ -4,14 +4,9 @@ from panda3d.core import AmbientLight
 from panda3d.core import DirectionalLight
 from panda3d.core import Vec3
 from panda3d.core import Vec4
-from panda3d.core import LVector3, LVector4
 from panda3d.core import MeshDrawer
-from math import sin, cos, pi
 from world import World
 from car import Car
-
-# Constants
-DEG_TO_RAD = pi / 180  # translates degrees to radians for sin and cos
 
 
 class Simulador(ShowBase):
@@ -54,7 +49,7 @@ class Simulador(ShowBase):
         # Task
         taskMgr.add(self.update, 'updateWorld')
         taskMgr.add(self.verify, 'verifyColision')
-        taskMgr.add(self.drawtask, "draw task")
+
         self.maxv = 0.0
         self.maxd = 0.0
         self.smartStop = True
@@ -102,62 +97,10 @@ class Simulador(ShowBase):
         # Car
         self.vehicle = Car(self.world, (1.5, 0, 1), (180, 0, 0))
         self.vehicle2 = Car(self.world, (50, 0, 1), (90, 0, 0))
-        # faixa
-        self.generator = MeshDrawer()
-        self.generator.setBudget(100)
-        generatorNode = self.generator.getRoot()
-        generatorNode.reparentTo(render)
-        generatorNode.setDepthWrite(False)
-        generatorNode.setTransparency(True)
-        generatorNode.setTwoSided(True)
-        generatorNode.setBin("fixed", 0)
-        generatorNode.setLightOff(True)
-
-    def drawtask(self, taks):
-        """ Draw the line """
-        # gira 90 graus, o obj esta colocado assim
-        direction = DEG_TO_RAD * (self.vehicle2.node.getHpr().getX()+90)
-        distancia = 50
-
-        # Car position, +3 para comecar da frente do carro
-        pFrom = self.vehicle2.node.getPos()
-        pFrom.setX(pFrom.getX()+(cos(direction)*3))
-        pFrom.setY(pFrom.getY()+(sin(direction)*3))
-
-        # Pos: LVector3(X<>, Y^, Z/Altura)
-        pTo = LVector3(pFrom.getX() + (cos(direction)*distancia),
-                       pFrom.getY() + (sin(direction)*distancia),
-                       0.5)
-
-        self.generator.begin(base.cam, render)
-        self.generator.segment(pFrom, pTo, 1, 1, LVector4(0.5, 0.2, 0.8, 0.6))
-        self.generator.end()
-
-        # colision
-        result = self.world.bulletW.rayTestClosest(pFrom, pTo)
-        print result.hasHit(), \
-              result.getHitFraction(), \
-              result.getNode(), \
-              result.getHitPos(), \
-              result.getHitNormal()
-        return taks.cont
-
-    def raycast(self):
-        # Raycast for closest hit
-        pFrom = self.vehicle2.node.getPos()
-        # gira 90 graus, o obj esta colocado assim
-        direction = DEG_TO_RAD * (self.vehicle2.node.getHpr().getX()+90)
-        distancia = 50
-        # Pos: LVector3(X<>, Y^, Z/Altura)
-        pTo = LVector3(pFrom.getX() + (cos(direction)*distancia),
-                       pFrom.getY() + (sin(direction)*distancia),
-                       0.5)
-        result = self.world.bulletW.rayTestClosest(pFrom, pTo)
-        print result.hasHit(), \
-              result.getHitFraction(), \
-              result.getNode(), \
-              result.getHitPos(), \
-              result.getHitNormal()
+        cars = [self.vehicle, self.vehicle2]
+        for car in cars:
+            print(dir(car))
+            taskMgr.add(car.AI.area_prediction, "draw task")
 
     def verify(self, task):
         dist = self.vehicle2.node.getDistance(self.vehicle.node)
