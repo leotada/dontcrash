@@ -154,7 +154,7 @@ class Car(object):
         self.keyMap[key] = value
 
     def setupAI(self):
-        self.AI = AI(self.node, self.world)
+        self.AI = AI(self.node, self.worldNP, self.world)
 
     def update(self, task):
         # Apply steering to front wheels

@@ -1,5 +1,8 @@
 from panda3d.core import LVector3, LVector4
 from panda3d.core import MeshDrawer
+from panda3d.bullet import BulletRigidBodyNode, BulletGhostNode, BulletBoxShape
+from panda3d.core import BitMask32
+from panda3d.core import Vec3
 from math import sin, cos, pi
 # Constants
 DEG_TO_RAD = pi / 180  # translates degrees to radians for sin and cos
@@ -9,8 +12,9 @@ class AI(object):
     """Classe responsavel por realizar os calculos e tomada de decisoes para
     os veiculos."""
 
-    def __init__(self, node, world):
+    def __init__(self, node, worldNP, world):
         self.node = node
+        self.worldNP = worldNP  # world node
         self.world = world  # bullet world
         self.setup()
 
@@ -25,6 +29,21 @@ class AI(object):
         generatorNode.setTwoSided(True)
         generatorNode.setBin("fixed", 0)
         generatorNode.setLightOff(True)
+
+        # Box (dynamic)
+        shape = BulletBoxShape(Vec3(1, 20, 1))
+
+        self.area = self.worldNP.attachNewNode(BulletGhostNode('Area'))
+        self.area.node().addShape(shape)
+        self.area.setPos(self.node.getPos())
+        self.area.setCollideMask(BitMask32.allOn())
+
+        self.world.attach(self.area.node())
+
+        self.area.node().notifyCollisions(True)
+        #self.accept('bullet-contact-added', self.doAdded)
+        #self.accept('bullet-contact-destroyed', self.doRemoved)
+        print(self.area)
 
     def area_prediction(self, task):
         """ Draw the area """
@@ -45,7 +64,13 @@ class AI(object):
         self.generator.begin(base.cam, render)
         self.generator.segment(self.pFrom, self.pTo, 1, 1, LVector4(0.5, 0.2, 0.8, 0.6))
         self.generator.end()
-        self.raycast()
+        #self.raycast()
+
+        # Area Bullet
+        self.area.setX(self.node.getX()+(cos(direction)*23))
+        self.area.setY(self.node.getY()+(sin(direction)*23))
+        self.area.setHpr(self.node.getHpr())
+
         return task.cont
 
     def raycast(self):
