@@ -71,14 +71,31 @@ class AI(object):
         self.area.setY(self.node.getY()+(sin(direction)*23))
         self.area.setHpr(self.node.getHpr())
 
+        # Collision
+        result = self.world.contactTest(self.area.node())
+         
+        print(result.getNumContacts())
+         
+        for contact in result.getContacts():
+            print('Node0:', contact.getNode0())
+            print('Node1:',contact.getNode1())
+         
+            mpoint = contact.getManifoldPoint()
+            print('Dist:', mpoint.getDistance())
+            print(mpoint.getAppliedImpulse())
+            print('PosA:', mpoint.getPositionWorldOnA())
+            print(mpoint.getPositionWorldOnB())
+            print(mpoint.getLocalPointA())
+            print(mpoint.getLocalPointB())
+
         return task.cont
 
     def raycast(self):
         # Raycast for closest hit
         result = self.world.rayTestClosest(self.pFrom, self.pTo)
         # colision
-        print result.hasHit(), \
+        print(result.hasHit(), \
               result.getHitFraction(), \
               result.getNode(), \
               result.getHitPos(), \
-              result.getHitNormal()
+              result.getHitNormal())
