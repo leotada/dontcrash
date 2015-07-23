@@ -3,7 +3,7 @@ from panda3d.core import MeshDrawer
 from panda3d.bullet import BulletRigidBodyNode, BulletGhostNode, BulletBoxShape
 from panda3d.core import BitMask32
 from panda3d.core import Vec3
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 # Constants
 DEG_TO_RAD = pi / 180  # translates degrees to radians for sin and cos
 
@@ -12,10 +12,12 @@ class AI(object):
     """Classe responsavel por realizar os calculos e tomada de decisoes para
     os veiculos."""
 
-    def __init__(self, node, worldNP, world):
-        self.node = node
+    def __init__(self, vehicle, worldNP, world):
+        self.vehicle = vehicle
         self.worldNP = worldNP  # world node
         self.world = world  # bullet world
+        self.smartStop = True
+        self.stopping = False
         self.setup()
 
     def setup(self):
@@ -34,7 +36,7 @@ class AI(object):
         shape = BulletBoxShape(Vec3(1, 20, 1))
         self.area = self.worldNP.attachNewNode(BulletGhostNode('Area'))
         self.area.node().addShape(shape)
-        self.area.setPos(self.node.getPos())
+        self.area.setPos(self.vehicle.node.getPos())
         self.area.setCollideMask(BitMask32.bit(1))
 
         self.world.attach(self.area.node())
@@ -43,11 +45,11 @@ class AI(object):
     def area_prediction(self, task):
         """ Draw the area """
         # turn 90 degrees to adjustment
-        direction = DEG_TO_RAD * (self.node.getHpr().getX()+90)
+        direction = DEG_TO_RAD * (self.vehicle.node.getHpr().getX()+90)
         distance = 38
 
         # Car position +3, position ahead the car
-        self.pFrom = self.node.getPos()
+        self.pFrom = self.vehicle.node.getPos()
         self.pFrom.setX(self.pFrom.getX()+(cos(direction)*3))
         self.pFrom.setY(self.pFrom.getY()+(sin(direction)*3))
 
@@ -61,25 +63,42 @@ class AI(object):
         self.generator.segment(self.pFrom, self.pTo, 1, 1, LVector4(0.5, 0.2, 0.8, 0.6))
         self.generator.end()
 
-        # Area Bullet
-        self.area.setX(self.node.getX()+(cos(direction)*22))
-        self.area.setY(self.node.getY()+(sin(direction)*22))
-        self.area.setHpr(self.node.getHpr())
+        # Area (Box) Bullet
+        self.area.setX(self.vehicle.node.getX()+(cos(direction)*22))
+        self.area.setY(self.vehicle.node.getY()+(sin(direction)*22))
+        self.area.setHpr(self.vehicle.node.getHpr())
 
         # Test collisions and filter by bitmask
         result = self.world.contactTest(self.area.node(), use_filter=True)
 
-        print(result.getNumContacts())
+        # print(result.getNumContacts())
 
         for contact in result.getContacts():
-            # print('Node0:', contact.getNode0().getName())
+            # print('Node0:', contact.getNode0())
             # print('Node1:',contact.getNode1())
             mpoint = contact.getManifoldPoint()
-            print('Dist:', mpoint.getDistance())
-            print('Imp', mpoint.getAppliedImpulse())
-            print('PosA:', mpoint.getPositionWorldOnA())
-            print('PosB:', mpoint.getPositionWorldOnB())
-            print('LocA:', mpoint.getLocalPointA())
-            print('LocB:', mpoint.getLocalPointB())
+            # print('Dist:', mpoint.getDistance())
+            # print('Imp', mpoint.getAppliedImpulse())
+            # print('PosA:', mpoint.getPositionWorldOnA())
+            # print('PosB:', mpoint.getPositionWorldOnB())
+            # print('LocA:', mpoint.getLocalPointA())
+            # print('LocB:', mpoint.getLocalPointB())
+
+            # Calculate distance between car and collision point
+            d = self.vehicle.node.getPos() - mpoint.getPositionWorldOnA()
+            distance = sqrt(d[0]**2 + d[1]**2 + d[2]**2) - 3  # 3 offset
+            print(distance)
+            # Smart Stop
+            vel = self.vehicle.bulletVehicle.getCurrentSpeedKmHour()
+            # distancia de frenagem
+            distf = ((vel**2) / (250*0.66)) + 6  # medida de seguranca, 6 offset
+            # Aciona freio
+            if self.smartStop and (vel > 40.0 or self.stopping):
+                self.stopping = True  # diz que ja acionou o sistema
+                if vel <= 0.1:
+                    self.stopping = False  # o sistema ja freiou
+                if distance <= distf:
+                    #task.time
+                    self.vehicle.brake()
 
         return task.cont

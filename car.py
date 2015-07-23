@@ -33,7 +33,6 @@ class Car(object):
 
         taskMgr.add(self.update, "Car Control")
 
-        self.stopping = False
         self.dt = None
         self.engineForce = 0.0
         self.brakeForce = 0.0
@@ -120,7 +119,7 @@ class Car(object):
         wheel.setRollInfluence(0.1)
 
     def forward(self):
-        self.engineForce = 1000.0
+        self.engineForce = 1200.0
         self.brakeForce = 0.0
 
     def reverse(self):
@@ -155,7 +154,7 @@ class Car(object):
         self.keyMap[key] = value
 
     def setupAI(self):
-        self.AI = AI(self.node, self.worldNP, self.world)
+        self.AI = AI(self, self.worldNP, self.world)
 
     def update(self, task):
         # Apply steering to front wheels

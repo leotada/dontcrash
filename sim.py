@@ -48,11 +48,6 @@ class Simulador(ShowBase):
 
         # Task
         taskMgr.add(self.update, 'updateWorld')
-        taskMgr.add(self.verify, 'verifyColision')
-
-        self.maxv = 0.0
-        self.maxd = 0.0
-        self.smartStop = True
 
     # _____HANDLER_____
     def toggleVerify(self):
@@ -81,13 +76,6 @@ class Simulador(ShowBase):
     def doScreenshot(self):
         base.screenshot('Bullet')
 
-    # ____TASK___
-
-    def update(self, task):
-        dt = globalClock.getDt()
-        self.world.bulletW.doPhysics(dt, 10, 0.008)
-        return task.cont
-
     def cleanup(self):
         worldNP = self.world.node
         worldNP.removeNode()
@@ -99,28 +87,12 @@ class Simulador(ShowBase):
         self.vehicle2 = Car(self.world, (50, 0, 1), (90, 0, 0))
         cars = [self.vehicle, self.vehicle2]
         for car in cars:
-            print(dir(car))
-            taskMgr.add(car.AI.area_prediction, "draw task")
+            taskMgr.add(car.AI.area_prediction, "area prediction")
 
-    def verify(self, task):
-        dist = self.vehicle2.node.getDistance(self.vehicle.node)
-        vel = self.vehicle2.bulletVehicle.getCurrentSpeedKmHour()
-        distf = ((vel**2) / (250*0.66)) + 6  # medida de seguranca
-        # Medidor
-        # print('MAX V: {} disf: {}'.format(self.maxv, self.maxd))
-        # print('INST V: {} disf: {} dist: {}'.format(vel, distf, dist))
-        if vel > self.maxv:
-            self.maxv = vel
-        if distf > self.maxd:
-            self.maxd = distf
-        # Aciona freio
-        if self.smartStop and (vel > 40.0 or self.vehicle2.stopping):
-            self.vehicle2.stopping = True  # diz que ja acionou o sistema
-            if vel <= 0.1:
-                self.vehicle2.stopping = False  # o sistema ja freiou
-            if dist <= distf:
-                #task.time
-                self.vehicle2.brake()
+    # ____TASK___
+    def update(self, task):
+        dt = globalClock.getDt()
+        self.world.bulletW.doPhysics(dt, 10, 0.008)
         return task.cont
 
 sim = Simulador()
