@@ -4,7 +4,7 @@ from panda3d.bullet import BulletBoxShape
 from panda3d.bullet import ZUp
 from panda3d.core import Vec3
 from panda3d.core import Point3
-from panda3d.core import TransformState
+from panda3d.core import TransformState, BitMask32
 from AI import AI
 
 
@@ -49,6 +49,7 @@ class Car(object):
         if rot: self.np.setHpr(*rot)
         self.np.node().setMass(800.0)
         self.np.node().setDeactivationEnabled(False)
+        self.np.setCollideMask(BitMask32.bit(1))
 
         self.world.attachRigidBody(self.np.node())
 

@@ -39,12 +39,13 @@ class World(object):
         np.node().addShape(shape)
         np.setPos(0, 0, 0)
         np.setScale(78)
-        np.setCollideMask(BitMask32.allOn())
+        np.setCollideMask(BitMask32.allOff())
 
         # Ground Model
         self.pista = loader.loadModel('models/rua.egg')
         self.pista.setZ(0)
         self.pista.setScale(0.05)
+
         self.pista.reparentTo(np)
 
         self.worldB.attach(np.node())
