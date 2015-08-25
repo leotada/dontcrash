@@ -90,7 +90,7 @@ class Car(object):
         self.steeringIncrement = 120.0  # degree per second
 
         # setup AI
-        self.setupAI()
+        self.AI = AI(self, self.worldNP, self.world)
 
     @property
     def node(self):
@@ -99,6 +99,10 @@ class Car(object):
     @property
     def bulletVehicle(self):
         return self.vehicle
+
+    @property
+    def speedKmHour(self):
+        return self.bulletVehicle.getCurrentSpeedKmHour()
 
     def _addWheel(self, pos, front, np):
         wheel = self.vehicle.createWheel()
@@ -152,9 +156,6 @@ class Car(object):
 
     def setKey(self, key, value):
         self.keyMap[key] = value
-
-    def setupAI(self):
-        self.AI = AI(self, self.worldNP, self.world)
 
     def update(self, task):
         # Apply steering to front wheels

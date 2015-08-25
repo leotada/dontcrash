@@ -7,6 +7,7 @@ from panda3d.core import Vec4
 from panda3d.core import MeshDrawer
 from world import World
 from car import Car
+from server import Server
 
 
 class Simulador(ShowBase):
@@ -85,9 +86,13 @@ class Simulador(ShowBase):
         # Car
         self.vehicle = Car(self.world, (1.5, 0, 1), (180, 0, 0))
         self.vehicle2 = Car(self.world, (50, 0, 1), (90, 0, 0))
+        # Server
+        server = Server()
         cars = [self.vehicle, self.vehicle2]
         for car in cars:
             taskMgr.add(car.AI.area_prediction, "area prediction")
+            server.add_client(car.AI)
+        taskMgr.add(server.verify, "prediction server")
 
     # ____TASK___
     def update(self, task):
