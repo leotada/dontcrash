@@ -4,6 +4,7 @@ from panda3d.bullet import BulletRigidBodyNode, BulletGhostNode, BulletBoxShape
 from panda3d.core import BitMask32
 from panda3d.core import Vec3
 from math import sin, cos, pi, sqrt
+import random
 
 # Constants
 DEG_TO_RAD = pi / 180  # translates degrees to radians for sin and cos
@@ -21,6 +22,7 @@ class AI(object):
         self.stopping = False
         self.area_collisions = None
         self.prediction = False  # Server response about collision
+        self.id = random.randint(100, 999)
         self.setup()
 
     def setup(self):

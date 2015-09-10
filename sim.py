@@ -84,7 +84,7 @@ class Simulador(ShowBase):
     def setup(self):
         self.world = World()
         # Car
-        self.vehicle = Car(self.world, (1.5, 0, 1), (180, 0, 0))
+        self.vehicle = Car(self.world, (1.5, 50, 1), (180, 0, 0))
         self.vehicle2 = Car(self.world, (50, 0, 1), (90, 0, 0))
         # Server
         server = Server()
@@ -98,6 +98,7 @@ class Simulador(ShowBase):
     def update(self, task):
         dt = globalClock.getDt()
         self.world.bulletW.doPhysics(dt, 10, 0.008)
+        self.vehicle.forward()
         return task.cont
 
 sim = Simulador()
