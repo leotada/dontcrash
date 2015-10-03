@@ -88,34 +88,4 @@ class AI(object):
         self.area_collisions = result.getContacts()
         # print(result.getNumContacts())
 
-        # if prediction on the server is True
-        if self.prediction:
-            for contact in self.area_collisions:
-                # print('Node0:', contact.getNode0())
-                # print('Node1:',contact.getNode1())
-                mpoint = contact.getManifoldPoint()
-                # print('Dist:', mpoint.getDistance())
-                # print('Imp', mpoint.getAppliedImpulse())
-                # print('PosA:', mpoint.getPositionWorldOnA())
-                # print('PosB:', mpoint.getPositionWorldOnB())
-                # print('LocA:', mpoint.getLocalPointA())
-                # print('LocB:', mpoint.getLocalPointB())
-
-                # Calculate distance between car and collision point
-                d = self.position - mpoint.getPositionWorldOnA()
-                distance = sqrt(d[0]**2 + d[1]**2 + d[2]**2) - 3  # 3 offset
-                print(distance)
-                # Smart Stop
-                vel = self.vehicle.speedKmHour
-                # distancia de frenagem
-                distf = ((vel**2) / (250*0.66)) + 6  # medida de seguranca, 6 offset
-                # Aciona freio
-                if self.smartStop and (vel > 40.0 or self.stopping):
-                    self.stopping = True  # diz que ja acionou o sistema
-                    if vel <= 0.1:
-                        self.stopping = False  # o sistema ja freiou
-                    if distance <= distf:
-                        #task.time
-                        self.vehicle.brake()
-
         return task.cont

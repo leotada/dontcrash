@@ -36,6 +36,8 @@ class Server(object):
                         for p in self.collisions:
                             if self.distance(point, p[0]) > 5.0:
                                 # if not any near
+                                # clear the other points
+                                del self.collisions[:]
                                 self.collisions.append([point, [client.id]])
                             else:
                                 # add client in the same point
@@ -43,12 +45,35 @@ class Server(object):
                                     p[1].append(client.id)
                     else:
                         self.collisions.append([point, [client.id]])
-                    # Calculate distance between car and collision point
-                    # d = client.position - mpoint.getPositionWorldOnA()
-                    # distance = sqrt(d[0]**2 + d[1]**2 + d[2]**2) - 3  # 3 offset
-                    # # time to reach the point (instant velocity)
-                    # time = distance / client.speed
-                    # print(distance)
-                    print(self.collisions)
 
+                    # Calculate distance between car and collision point
+                    d = client.position - mpoint.getPositionWorldOnA()
+                    distance = sqrt(d[0]**2 + d[1]**2 + d[2]**2) - 3  # 3 offset
+                    # time to reach the point (instant velocity)
+                    # time = distance / client.speed
+                    # print(time*4)
+                    #print(self.collisions)
+
+                    # funciona so com 2 carros por enquanto
+                    minorSpeed = [-1, None]
+                    if len(self.collisions[0][1]) > 1:  # tiver mais de um carro no ponto
+                        for carId in self.collisions[0][1]:  # itera carros que estao no ponto de colisao
+                            for car in self.clients:  # itera clientes
+                                if car.id == carId:  # se for o cliente certo
+                                    if car.vehicle.speedKmHour < minorSpeed[0] or minorSpeed[0] == -1:  # armazena a velocidade e o carro se for menor
+                                        minorSpeed[0] = car.vehicle.speedKmHour
+                                        minorSpeed[1] = car
+                        # Smart Stop
+                        vel = minorSpeed[0]
+                        carAI = minorSpeed[1]
+                        # distancia de frenagem
+                        distf = ((vel**2) / (250*0.66)) + 6  # medida de seguranca, 6 offset
+                        # Aciona freio
+                        if (vel > 40.0 or carAI.stopping):
+                            carAI.stopping = True  # diz que ja acionou o sistema
+                            if vel <= 0.1:
+                                carAI.stopping = False  # o sistema ja freiou
+                            if distance <= distf:
+                                #task.time
+                                carAI.vehicle.brake()
         return task.cont
