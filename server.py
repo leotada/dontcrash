@@ -67,7 +67,7 @@ class Server(object):
                         vel = minorSpeed[0]
                         carAI = minorSpeed[1]
                         # distancia de frenagem
-                        distf = ((vel**2) / (250*0.66)) + 6  # medida de seguranca, 6 offset
+                        distf = ((vel**2) / (250*0.66)) + 2  # medida de seguranca, 6 offset
                         # Aciona freio
                         if (vel > 40.0 or carAI.stopping):
                             carAI.stopping = True  # diz que ja acionou o sistema

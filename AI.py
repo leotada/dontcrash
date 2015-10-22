@@ -75,7 +75,10 @@ class AI(object):
 
         # Draw line
         self.generator.begin(base.cam, render)
-        self.generator.segment(self.pFrom, self.pTo, 1, 1, LVector4(0.5, 0.2, 0.8, 0.6))
+        if self.vehicle.brakeForce > 0.0:  # red line while braking
+            self.generator.segment(self.pFrom, self.pTo, 1, 1, LVector4(1.0, 0.0, 0.0, 0.6))
+        else:
+            self.generator.segment(self.pFrom, self.pTo, 1, 1, LVector4(0.5, 0.2, 0.8, 0.6))
         self.generator.end()
 
         # Area (Box) Bullet
