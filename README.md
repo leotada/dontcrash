@@ -1,5 +1,5 @@
 # Dontcrash
-Meu trabalho de conclusão do curso Sistemas de Informação, um simulador de trânsito inteligente que evita acidentes.
+Meu trabalho de conclusão do curso Sistemas de Informação, um simulador de trânsito inteligente que evita acidentes, detectando a futura colisão e parando o carro mais lento a tempo.
 Feito com a game engine Panda 3D. Universidade Unipar.
 
 Como executar
