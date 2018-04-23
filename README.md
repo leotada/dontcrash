@@ -1,4 +1,9 @@
 # Dontcrash
+My work completing course Information Systems, a smart traffic simulator that prevents accidents by detecting a future collision and stopping the car slower in time. Made with a Panda 3D game engine. Unipar University.
+
+
+In portuguese
+
 Meu trabalho de conclusão do curso Sistemas de Informação, um simulador de trânsito inteligente que evita acidentes, detectando a futura colisão e parando o carro mais lento a tempo.
 Feito com a game engine Panda 3D. Universidade Unipar.
 
